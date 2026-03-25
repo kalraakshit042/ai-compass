@@ -2,27 +2,37 @@
 
 **Describe what you're building, get the right AI model in 30 seconds.**
 
-[Try it live →](https://akshitkalra.com/aicompass)
+![AI Compass screenshot](./docs/images/ai-compass-home.png)
 
-<!-- TODO: Replace with actual screenshot -->
-<!-- ![AI Compass screenshot](docs/screenshot.png) -->
+**[Try it live →](https://akshitkalra.com/aicompass)**
+
+---
+
+## Example
+
+**Input:** "I want to build a chatbot that summarizes legal documents. Budget is $100/month."
+
+**Top recommendation:** Claude Sonnet 4
+
+**Why:** Best balance of long-context reasoning, summarization quality, and structured output within the stated budget.
+
+**Tradeoff:** Higher cost than lightweight models, but better fit for document-heavy workflows.
+
+![Recommendation output](./docs/images/ai-compass-result.png)
 
 ---
 
 ## The Problem
 
-There are 100+ AI models across text, image, video, voice, music, and code — from OpenAI, Google, Anthropic, ElevenLabs, Runway, and dozens more. Pricing models vary wildly (per-token, per-image, per-minute). Capabilities overlap in confusing ways.
+Choosing an AI model is still a messy manual workflow. Teams jump between provider pricing pages, benchmark dashboards, and blog posts, then make an important decision based on incomplete information.
 
-If you're a developer, PM, or founder trying to pick the right model for your project, you're stuck reading blog posts, comparing pricing pages, and guessing. The information exists, but it's scattered across 30 different provider websites.
+The hard part is not finding model data — there are now 100+ models across 30+ providers. The hard part is mapping a real use case ("cheap legal document analysis", "fast customer support copilot") into the right tradeoff across cost, latency, context window, and capability.
 
 ## The Solution
 
-AI Compass is a recommendation engine that matches your use case to the best AI model. Describe what you're building in plain English — it returns ranked recommendations with cost estimates, tradeoffs, and capability ratings.
+AI Compass turns a plain-English use case into a ranked set of model recommendations.
 
-**Two ways to use it:**
-
-- **Web app** — paste your use case, get recommendations. Free tier (5/day) or bring your own Anthropic API key for unlimited use.
-- **MCP server** — plug into Claude Desktop, Cursor, or any MCP-compatible client. Get model recommendations without leaving your IDE.
+Instead of showing a generic comparison table, it: interprets the use case, identifies the most important constraints, scores model fit across capability/cost/tradeoffs, and returns top recommendations with reasoning.
 
 Covers 62 models across 8 categories from 29 providers:
 
@@ -33,6 +43,17 @@ Covers 62 models across 8 categories from 29 providers:
 | Video | Sora, Runway Gen-3, Kling, Veo 2 |
 | Voice | ElevenLabs, OpenAI TTS/Whisper, Deepgram |
 | Music & Embedding | Suno, Udio, text-embedding-3 |
+
+**Two ways to use it:**
+
+- **Web app** — paste your use case, get recommendations. Free tier (5/day) or bring your own Anthropic API key for unlimited use.
+- **MCP server** — plug into Claude Desktop, Cursor, or any MCP-compatible client. Get model recommendations without leaving your IDE.
+
+## Why MCP?
+
+The web app is for humans exploring model choices visually.
+
+The MCP server exists for developer workflows where model selection needs to happen inside tools like Claude Desktop or Cursor — without leaving the IDE. Same recommendation engine, different interface.
 
 ## Technical Decisions & Tradeoffs
 
@@ -51,6 +72,8 @@ The entire model dataset is a JSON file (62 entries). No user accounts, no saved
 - Model comparison UI — started building it, decided the ranked cards with tradeoff explanations were clearer than a feature matrix.
 
 ## Architecture
+
+One dataset. One recommendation engine. Two interfaces. The core `recommend()` function in `packages/core` is the only path — both the web API route and the MCP tool call it directly.
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -76,6 +99,11 @@ Monorepo:
   apps/web           → Next.js 16 frontend + API route
   apps/mcp-server    → MCP stdio server for IDE integration
 ```
+
+## Known Limitations
+
+- Recommendations are only as good as the curated dataset. Pricing and benchmark data can drift as providers update models.
+- Some use cases — especially compliance-heavy or highly domain-specific workflows — still require human judgment beyond the recommendation output.
 
 ## What I Learned
 
@@ -124,6 +152,10 @@ pnpm test
   }
 }
 ```
+
+## Roadmap
+
+See [ROADMAP.md](./ROADMAP.md) for planned improvements.
 
 ---
 
