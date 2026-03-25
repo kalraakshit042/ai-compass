@@ -65,7 +65,7 @@ export default function Home() {
         setResults(recs);
         setCached(query, recs);
       } else {
-        const res = await fetch("/api/recommend", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/recommend`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ query }),
