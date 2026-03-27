@@ -3,7 +3,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { recommend } from "@ai-compass/core";
+import { recommend, validateQuery } from "@ai-compass/core";
 import type { Model } from "@ai-compass/core";
 import bundledModels from "./models-snapshot.json" with { type: "json" };
 
@@ -69,6 +69,20 @@ server.tool(
     }
 
     try {
+      const validation = await validateQuery(use_case, apiKey);
+      if (!validation.valid) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text:
+                validation.message ??
+                "Please describe an AI use case you want to build.",
+            },
+          ],
+        };
+      }
+
       const { models, ageHours } = await getModels();
       const recs = await recommend(use_case, models, apiKey);
 

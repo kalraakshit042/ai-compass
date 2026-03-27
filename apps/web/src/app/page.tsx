@@ -82,7 +82,8 @@ export default function Home() {
           return;
         }
         if (!res.ok) {
-          setError("Claude is temporarily unavailable. Please try again.");
+          const body = await res.json().catch(() => ({})) as { error?: string };
+          setError(body.error ?? "Claude is temporarily unavailable. Please try again.");
           return;
         }
 

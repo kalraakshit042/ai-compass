@@ -1,4 +1,4 @@
-import { recommend } from "@ai-compass/core";
+import { recommend, validateQuery } from "@ai-compass/core";
 import models from "@ai-compass/dataset/models.json";
 import type { Model } from "@ai-compass/core";
 
@@ -27,6 +27,18 @@ export async function POST(request: Request) {
   }
 
   try {
+    const validation = await validateQuery(query, apiKey);
+    if (!validation.valid) {
+      return Response.json(
+        {
+          error:
+            validation.message ??
+            "Please describe an AI use case you want to build.",
+        },
+        { status: 422 },
+      );
+    }
+
     const recs = await recommend(query, models as Model[], apiKey);
     return Response.json(recs);
   } catch (err) {
