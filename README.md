@@ -6,6 +6,8 @@
 
 **[Try it live →](https://akshitkalra.com/aicompass)**
 
+[![ai-compass MCP server](https://glama.ai/mcp/servers/kalraakshit042/ai-compass/badges/score.svg)](https://glama.ai/mcp/servers/kalraakshit042/ai-compass)
+
 ---
 
 ## Example
