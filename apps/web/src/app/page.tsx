@@ -227,6 +227,18 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      <footer className="text-center py-6 text-muted text-xs border-t border-border">
+        Built by{" "}
+        <a
+          href="https://akshitkalra.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent hover:underline"
+        >
+          Akshit Kalra
+        </a>
+      </footer>
     </div>
   );
 }
