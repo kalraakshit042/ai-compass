@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { CapabilityFit, Model, Recommendation } from "./types";
+import type { CapabilityFit, Model, Recommendation } from "./types.js";
 
 const SYSTEM_PROMPT = `You are an AI model recommendation expert. Below is a dataset of available AI models in JSON format. Given the user's use case, recommend the top 3-4 models ranked by fit.
 
