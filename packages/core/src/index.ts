@@ -1,3 +1,3 @@
-export type { Model, ModelCategory, CapabilityFit, Recommendation } from "./types";
-export { recommend, callClaude, parseRecommendations } from "./recommend";
-export { validateQuery } from "./validate";
+export type { Model, ModelCategory, CapabilityFit, Recommendation } from "./types.js";
+export { recommend, callClaude, parseRecommendations } from "./recommend.js";
+export { validateQuery } from "./validate.js";
