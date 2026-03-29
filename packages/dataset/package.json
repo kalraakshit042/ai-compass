@@ -5,13 +5,20 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./models.json": "./models.json"
+    "./models.json": "./models.json",
+    "./validate": "./src/validate-dataset.ts",
+    "./schema": "./src/schema.ts"
   },
   "scripts": {
-    "refresh": "tsx refresh.ts"
+    "refresh": "tsx refresh.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3"
   },
   "devDependencies": {
     "typescript": "^5.7",
-    "tsx": "^4"
+    "tsx": "^4",
+    "vitest": "^3"
   }
 }

@@ -7,3 +7,5 @@ dist/
 .env.local
 .vercel
 .gstack/
+.DS_Store
+.claude/
