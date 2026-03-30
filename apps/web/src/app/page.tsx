@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import type { Recommendation, Model } from "@ai-compass/core";
 import { Header } from "@/components/header";
 import { ComparisonTable } from "@/components/comparison-table";
@@ -13,6 +14,14 @@ import { getCached, setCached } from "@/lib/cache";
 import { getUsage, incrementUsage } from "@/lib/usage";
 
 export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeContent() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Recommendation[]>([]);
   const [allModels, setAllModels] = useState<Model[]>([]);
@@ -20,6 +29,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const searchParams = useSearchParams();
 
   const [apiKey, setApiKeyState] = useState<string | null>(null);
   const [usageCount, setUsageCount] = useState(0);
@@ -31,12 +42,28 @@ export default function Home() {
     setMounted(true);
   }, []);
 
+  // Auto-fill and submit from ?q= URL param
+  useEffect(() => {
+    if (!mounted) return;
+    const q = searchParams.get("q");
+    if (q && !hasSearched) {
+      setQuery(q);
+      // Submit on next tick after state update
+      setTimeout(() => formRef.current?.requestSubmit(), 0);
+    }
+  }, [mounted, searchParams, hasSearched]);
+
   const isGuest = !apiKey;
   const quotaExhausted = isGuest && usageCount >= 5;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!query.trim() || loading || quotaExhausted) return;
+
+    // Update URL so this query is shareable
+    const url = new URL(window.location.href);
+    url.searchParams.set("q", query.trim());
+    window.history.replaceState(null, "", url.toString());
 
     const cached = getCached(query);
     if (cached) {
@@ -132,7 +159,7 @@ export default function Home() {
             recommendations in 30 seconds.
           </p>
 
-          <form onSubmit={handleSubmit}>
+          <form ref={formRef} onSubmit={handleSubmit}>
             <textarea
               value={query}
               onChange={(e) => setQuery(e.target.value)}
