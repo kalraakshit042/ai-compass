@@ -7,8 +7,9 @@ import { Header } from "@/components/header";
 import { ComparisonTable } from "@/components/comparison-table";
 import { RecommendationCard } from "@/components/recommendation-card";
 import { SkeletonCard } from "@/components/skeleton-card";
-import { ExampleResults } from "@/components/example-results";
 import { ErrorBanner } from "@/components/error-banner";
+import { QueryGrid } from "@/components/query-grid";
+import { supabaseBrowser } from "@/lib/supabase.client";
 import { getApiKey } from "@/lib/settings";
 import { getCached, setCached } from "@/lib/cache";
 import { getUsage, incrementUsage } from "@/lib/usage";
@@ -35,11 +36,19 @@ function HomeContent() {
   const [apiKey, setApiKeyState] = useState<string | null>(null);
   const [usageCount, setUsageCount] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [inspirationQueries, setInspirationQueries] = useState<{id: string, query_text: string}[]>([]);
 
   useEffect(() => {
     setApiKeyState(getApiKey());
     setUsageCount(getUsage().count);
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/api/queries`)
+      .then(r => r.json())
+      .then(setInspirationQueries)
+      .catch(() => {})
   }, []);
 
   // Auto-fill and submit from ?q= URL param
@@ -90,6 +99,11 @@ function HomeContent() {
         const { recommend } = await import("@ai-compass/core");
         const recs = await recommend(query, typedModels, apiKey);
         setResults(recs);
+        void Promise.resolve(
+          supabaseBrowser
+            .from('queries')
+            .insert({ query_text: query.slice(0, 2000), source: 'byok' })
+        ).catch(() => {})
         setCached(query, recs);
       } else {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/recommend`, {
@@ -192,7 +206,12 @@ function HomeContent() {
             </button>
           </form>
 
-          {!hasSearched && <ExampleResults />}
+          {inspirationQueries.length > 0 && results.length === 0 && !loading && (
+            <section className="mt-8">
+              <p className="text-muted text-xs mb-3">What others have asked</p>
+              <QueryGrid queries={inspirationQueries} onSelect={(q) => setQuery(q)} />
+            </section>
+          )}
         </div>
 
         {error && (

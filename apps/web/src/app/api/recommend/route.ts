@@ -1,6 +1,7 @@
 import { recommend, validateQuery } from "@ai-compass/core";
 import models from "@ai-compass/dataset/models.json";
 import type { Model } from "@ai-compass/core";
+import { createServerClient } from "@/lib/supabase.server";
 
 export async function POST(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -40,6 +41,13 @@ export async function POST(request: Request) {
     }
 
     const recs = await recommend(query, models as Model[], apiKey);
+
+    void Promise.resolve(
+      createServerClient()
+        .from('queries')
+        .insert({ query_text: query.slice(0, 2000), source: 'guest' })
+    ).catch((err: unknown) => console.error('[supabase] guest insert failed:', err))
+
     return Response.json(recs);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
