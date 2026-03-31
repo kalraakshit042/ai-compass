@@ -9,7 +9,7 @@ import { RecommendationCard } from "@/components/recommendation-card";
 import { SkeletonCard } from "@/components/skeleton-card";
 import { ErrorBanner } from "@/components/error-banner";
 import { QueryGrid } from "@/components/query-grid";
-import { supabaseBrowser } from "@/lib/supabase.client";
+import { getSupabaseBrowser } from "@/lib/supabase.client";
 import { getApiKey } from "@/lib/settings";
 import { getCached, setCached } from "@/lib/cache";
 import { getUsage, incrementUsage } from "@/lib/usage";
@@ -100,8 +100,8 @@ function HomeContent() {
         const recs = await recommend(query, typedModels, apiKey);
         setResults(recs);
         void Promise.resolve(
-          supabaseBrowser
-            .from('queries')
+          getSupabaseBrowser()
+            ?.from('queries')
             .insert({ query_text: query.slice(0, 2000), source: 'byok' })
         ).catch(() => {})
         setCached(query, recs);
